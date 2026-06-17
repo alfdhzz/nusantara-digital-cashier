@@ -97,10 +97,11 @@ export default function Home() {
   // Modal State
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [modalQty, setModalQty] = useState(1);
-  const [modalOptions, setModalOptions] = useState<{spicy: string, ice: string, sugar: string}>({
+  const [modalOptions, setModalOptions] = useState<{spicy: string, ice: string, sugar: string, note: string}>({
     spicy: "Tidak Pedas",
     ice: "Dingin",
-    sugar: "Normal"
+    sugar: "Normal",
+    note: ""
   });
 
   const categories = [
