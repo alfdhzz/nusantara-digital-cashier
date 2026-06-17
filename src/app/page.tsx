@@ -24,6 +24,7 @@ export type CartItem = Product & {
     spicy?: string;
     ice?: string;
     sugar?: string;
+    note?: string;
   };
 };
 
