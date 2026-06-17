@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { getCollectionName } from "@/lib/session";
 import { formatIDR } from "@/app/page";
 import { Loader2, Plus, Edit2, Trash2, X, Search, Check } from "lucide-react";
 
@@ -56,7 +57,7 @@ export default function ProductsPage() {
   const fetchProducts = async () => {
     setIsLoading(true);
     try {
-      const querySnapshot = await getDocs(collection(db, "products"));
+      const querySnapshot = await getDocs(collection(db, getCollectionName("products")));
       const data: Product[] = [];
       querySnapshot.forEach((doc) => {
         data.push({ id: doc.id, ...doc.data() } as Product);
@@ -115,10 +116,10 @@ export default function ProductsPage() {
     try {
       await new Promise(resolve => setTimeout(resolve, 1500)); // Simulasi delay
       if (editingId) {
-        await updateDoc(doc(db, "products", editingId), productData);
+        await updateDoc(doc(db, getCollectionName("products"), editingId), productData);
         setSuccessMessage("Produk berhasil diperbarui!");
       } else {
-        await addDoc(collection(db, "products"), productData);
+        await addDoc(collection(db, getCollectionName("products")), productData);
         setSuccessMessage("Produk berhasil ditambahkan!");
       }
       handleCloseModal();
@@ -136,7 +137,7 @@ export default function ProductsPage() {
     setIsProcessingAction(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 1500)); // Simulasi delay
-      await deleteDoc(doc(db, "products", id));
+      await deleteDoc(doc(db, getCollectionName("products"), id));
       setSuccessMessage("Produk berhasil dihapus!");
       fetchProducts();
     } catch (error) {
@@ -395,3 +396,4 @@ export default function ProductsPage() {
     </div>
   );
 }
+

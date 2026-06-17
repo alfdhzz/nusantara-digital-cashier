@@ -3,6 +3,7 @@ import { useEffect, useState, useMemo } from "react";
 import Sidebar from "@/components/Sidebar";
 import { collection, getDocs, Timestamp, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { getCollectionName } from "@/lib/session";
 import { formatIDR } from "@/app/page";
 import { Loader2, TrendingUp, Users, Receipt, CircleDollarSign, ShoppingBag, Printer, CalendarDays } from "lucide-react";
 
@@ -42,7 +43,7 @@ export default function ReportPage() {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const q = query(collection(db, "transactions"), orderBy("createdAt", "desc"));
+        const q = query(collection(db, getCollectionName("transactions")), orderBy("createdAt", "desc"));
         const querySnapshot = await getDocs(q);
         const data: Transaction[] = [];
         querySnapshot.forEach((doc) => {
@@ -289,3 +290,4 @@ export default function ReportPage() {
     </div>
   );
 }
+

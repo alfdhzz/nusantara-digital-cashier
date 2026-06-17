@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import { collection, getDocs, query, orderBy, Timestamp, updateDoc, deleteDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { getCollectionName } from "@/lib/session";
 import { formatIDR } from "@/app/page";
 import { CalendarDays, Loader2, Utensils, ShoppingBag, Edit2, Trash2, X, Check } from "lucide-react";
 
@@ -34,7 +35,7 @@ export default function HistoryPage() {
   const fetchTransactions = async () => {
     setIsLoading(true);
     try {
-      const q = query(collection(db, "transactions"), orderBy("createdAt", "desc"));
+      const q = query(collection(db, getCollectionName("transactions")), orderBy("createdAt", "desc"));
       const querySnapshot = await getDocs(q);
       const data: Transaction[] = [];
       querySnapshot.forEach((doc) => {
@@ -76,7 +77,7 @@ export default function HistoryPage() {
     setIsProcessingAction(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 1500)); // Simulasi delay
-      await updateDoc(doc(db, "transactions", editingTrx.id), {
+      await updateDoc(doc(db, getCollectionName("transactions"), editingTrx.id), {
         customerInfo: formData.customerInfo.trim(),
         orderType: formData.orderType
       });
@@ -96,7 +97,7 @@ export default function HistoryPage() {
     setIsProcessingAction(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 1500)); // Simulasi delay
-      await deleteDoc(doc(db, "transactions", id));
+      await deleteDoc(doc(db, getCollectionName("transactions"), id));
       setSuccessMessage("Riwayat transaksi berhasil dihapus!");
       fetchTransactions();
     } catch (error) {
@@ -283,3 +284,4 @@ export default function HistoryPage() {
     </div>
   );
 }
+

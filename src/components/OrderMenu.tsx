@@ -3,6 +3,7 @@ import { Edit3, Loader2, Trash2, DoorClosed, Printer, Check, ShoppingBag, X } fr
 import { useState } from "react";
 import { collection, addDoc, serverTimestamp, writeBatch, doc, increment } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { getCollectionName } from "@/lib/session";
 import { CartItem, formatIDR } from "@/app/page";
 import { useShift } from "@/context/ShiftContext";
 
@@ -53,7 +54,7 @@ export default function OrderMenu({ cartItems, setCartItems }: OrderMenuProps) {
       const batch = writeBatch(db);
       
       // Simpan data transaksi
-      const transactionRef = doc(collection(db, "transactions"));
+      const transactionRef = doc(collection(db, getCollectionName("transactions")));
       batch.set(transactionRef, {
         items: cartItems,
         subTotal,
@@ -67,7 +68,7 @@ export default function OrderMenu({ cartItems, setCartItems }: OrderMenuProps) {
       // Kurangi stok produk
       cartItems.forEach(item => {
         if (item.id) {
-          const productRef = doc(db, "products", item.id);
+          const productRef = doc(db, getCollectionName("products"), item.id);
           batch.update(productRef, { stock: increment(-item.qty) });
         }
       });
@@ -373,3 +374,4 @@ export default function OrderMenu({ cartItems, setCartItems }: OrderMenuProps) {
     </>
   );
 }
+

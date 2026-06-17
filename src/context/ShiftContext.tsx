@@ -18,18 +18,23 @@ export function ShiftProvider({ children }: { children: React.ReactNode }) {
   const [isShiftLoading, setIsShiftLoading] = useState(true);
 
   useEffect(() => {
-    const q = query(collection(db, "shifts"), where("status", "==", "open"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      if (!snapshot.empty) {
-        const docData = snapshot.docs[0];
-        setShift({ id: docData.id, ...docData.data() });
-      } else {
-        setShift(null);
-      }
-      setIsShiftLoading(false);
+    let unsubscribe: any = null;
+    import("@/lib/session").then(({ getCollectionName }) => {
+      const q = query(collection(db, getCollectionName("shifts")), where("status", "==", "open"));
+      unsubscribe = onSnapshot(q, (snapshot) => {
+        if (!snapshot.empty) {
+          const docData = snapshot.docs[0];
+          setShift({ id: docData.id, ...docData.data() });
+        } else {
+          setShift(null);
+        }
+        setIsShiftLoading(false);
+      });
     });
 
-    return () => unsubscribe();
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, []);
 
   return (

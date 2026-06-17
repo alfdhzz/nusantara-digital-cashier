@@ -5,6 +5,7 @@ import OrderMenu from "@/components/OrderMenu";
 import { Search, ChevronDown, Loader2, Plus, Minus, X } from "lucide-react";
 import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { getCollectionName } from "@/lib/session";
 
 export type Product = {
   id?: string;
@@ -119,7 +120,7 @@ export default function Home() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, "products"));
+        const querySnapshot = await getDocs(collection(db, getCollectionName("products")));
         let data: Product[] = [];
         querySnapshot.forEach((docSnap) => {
           data.push({ id: docSnap.id, ...docSnap.data() } as Product);
@@ -130,7 +131,7 @@ export default function Home() {
         if (hasOldData) {
           console.log("Menghapus data menu lama...");
           for (const p of data) {
-            await deleteDoc(doc(db, "products", p.id!));
+            await deleteDoc(doc(db, getCollectionName("products"), p.id!));
           }
           data = [];
         }
@@ -139,7 +140,7 @@ export default function Home() {
         if (data.length === 0) {
           console.log("Seeding menu restoran...");
           for (const product of initialProducts) {
-            const docRef = await addDoc(collection(db, "products"), product);
+            const docRef = await addDoc(collection(db, getCollectionName("products")), product);
             data.push({ id: docRef.id, ...product });
           }
         }
@@ -463,3 +464,4 @@ export default function Home() {
     </div>
   );
 }
+

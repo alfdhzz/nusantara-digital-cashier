@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useShift } from "@/context/ShiftContext";
 import { collection, addDoc, serverTimestamp, query, where, getDocs, updateDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { getCollectionName } from "@/lib/session";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -56,7 +57,7 @@ export default function Sidebar() {
     setIsProcessingAction(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 1500)); // Simulasi delay
-      await addDoc(collection(db, "shifts"), {
+      await addDoc(collection(db, getCollectionName("shifts")), {
         status: "open",
         openedAt: serverTimestamp(),
         openingBalance: numericBalance,
@@ -77,7 +78,7 @@ export default function Sidebar() {
     setIsProcessingAction(true); 
     try {
       const q = query(
-        collection(db, "transactions"), 
+        collection(db, getCollectionName("transactions")), 
         where("createdAt", ">=", shift.openedAt)
       );
       const snapshot = await getDocs(q);
@@ -105,7 +106,7 @@ export default function Sidebar() {
     setIsProcessingAction(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 1500)); // Simulasi delay
-      await updateDoc(doc(db, "shifts", shift.id), {
+      await updateDoc(doc(db, getCollectionName("shifts"), shift.id), {
         status: "closed",
         closedAt: serverTimestamp(),
         closingBalance: numericClosing,
@@ -327,3 +328,4 @@ export default function Sidebar() {
     </>
   );
 }
+
