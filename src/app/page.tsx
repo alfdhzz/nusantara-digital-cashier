@@ -148,6 +148,8 @@ export default function Home() {
         setAllProducts(data);
       } catch (error) {
         console.error("Error fetching products:", error);
+        // Fallback ke daftar produk default jika koneksi/izin Firestore bermasalah
+        setAllProducts(initialProducts);
       } finally {
         setIsLoadingProducts(false);
       }

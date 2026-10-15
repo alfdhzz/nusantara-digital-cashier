@@ -1,5 +1,5 @@
 "use client";
-import { Store, PieChart, Settings, LogOut, ClipboardList, Package, DoorOpen, DoorClosed, X, Loader2, Check } from "lucide-react";
+import { Store, PieChart, Settings, LogOut, ClipboardList, Package, DoorOpen, DoorClosed, X, Loader2, Check, AlertCircle, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -11,7 +11,8 @@ import { getCollectionName } from "@/lib/session";
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { shift, isShiftLoading } = useShift();
+  const { shift, isShiftLoading, shiftError, refreshShift } = useShift();
+
 
   const [isOpenModalOpen, setIsOpenModalOpen] = useState(false);
   const [openingBalance, setOpeningBalance] = useState("");
@@ -65,9 +66,13 @@ export default function Sidebar() {
       setIsOpenModalOpen(false);
       setOpeningBalance("");
       setSuccessMessage("Shift Kasir Berhasil Dibuka!");
-    } catch (error) {
-      console.error(error);
-      alert("Gagal membuka kasir.");
+    } catch (error: any) {
+      console.error("Open cashier error:", error);
+      if (error?.code === "permission-denied" || error?.message?.includes("Missing or insufficient permissions")) {
+        alert("Gagal membuka kasir: Izin Firestore ditolak (Permission Denied). Silakan aktifkan aturan baca/tulis di Firebase Console.");
+      } else {
+        alert("Gagal membuka kasir: " + (error?.message || "Terjadi kesalahan."));
+      }
     } finally {
       setIsProcessingAction(false);
     }
@@ -184,7 +189,7 @@ export default function Sidebar() {
             </div>
           ) : (
             <>
-              <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 mb-12 sm:mb-16 animate-in slide-in-from-bottom-4 fade-in duration-500">
+              <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 mb-8 sm:mb-12 animate-in slide-in-from-bottom-4 fade-in duration-500">
                 <Image 
                   src="/logo.png" 
                   alt="Nusantara POS Logo" 
@@ -197,6 +202,22 @@ export default function Sidebar() {
                   Nusantara <span className="text-primary font-light">POS</span>
                 </h1>
               </div>
+
+              {shiftError && (
+                <div className="mb-8 max-w-md w-full p-4 bg-amber-50 border border-amber-200 rounded-2xl text-amber-800 text-sm text-left flex items-start gap-3 shadow-sm animate-in fade-in duration-300">
+                  <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-semibold text-amber-900 mb-1">Akses Firestore Bermasalah</p>
+                    <p className="text-xs text-amber-700 leading-relaxed mb-3">{shiftError}</p>
+                    <button 
+                      onClick={refreshShift}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-800 bg-amber-200/60 hover:bg-amber-200 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5" /> Coba Muat Ulang
+                    </button>
+                  </div>
+                </div>
+              )}
               
               <button 
                 onClick={() => setIsOpenModalOpen(true)}
